@@ -9,6 +9,7 @@ import 'dart:math';
 import 'package:firebase/firebase.dart' as fb;
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/scheduler.dart';
+import './Log_in.dart';
 
 
 void main() {
@@ -71,6 +72,18 @@ class MyHomePage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => SavePage()),
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: ElevatedButton(
+                  child: Text('Log in'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Log_in()),
                     );
                   },
                 ),
