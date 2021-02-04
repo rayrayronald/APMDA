@@ -1,8 +1,31 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:firebase/firebase.dart' as fb;
 
 import './constants.dart';
+
+
+
+// Initialise Firebase
+FBI() async{
+  try {
+    fb.initializeApp(
+      apiKey: "AIzaSyCbLl2hVB4DCQeLPNzSh1iMZbMMj8i3IuM",
+      authDomain: "apmda-499b8.firebaseapp.com",
+      databaseURL: "https://apmda-499b8.firebaseio.com",
+      storageBucket: "apmda-499b8.appspot.com",
+    );
+  } on fb.FirebaseJsNotLoadedException catch (e) {
+    print(e);
+  } catch (e) {
+    print(e);
+  }
+}
+
+
+
+
 
 //helper method to show progress
 ProgressDialog progressDialog;

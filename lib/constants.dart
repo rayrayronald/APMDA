@@ -5,4 +5,6 @@ const COLOR_PRIMARY = 0xFF2196F3;
 const COLOR_SHADOW = 0x29000000;
 const COLOR_BACKGROUND = 0xffffffff;
 const FACEBOOK_BUTTON_COLOR = 0xFF415893;
+const EMAIL = 'apmda@nhs.co.uk';
+const PASSWORD = 'apmdaNHS';
 const USERS = 'users';
