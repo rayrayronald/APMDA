@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
 import 'package:adobe_xd/page_link.dart';
-import './Patents_connected.dart';
-import './Patents_A1.dart';
+import 'Patents_connected.dart';
+import 'Patents_A1.dart';
 
 class Sidemenu extends StatelessWidget {
   Sidemenu({

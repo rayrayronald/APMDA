@@ -8,3 +8,4 @@ const FACEBOOK_BUTTON_COLOR = 0xFF415893;
 const EMAIL = 'apmda@nhs.co.uk';
 const PASSWORD = 'apmdaNHS';
 const USERS = 'users';
+const DATAPATH = 'patient_data';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import './User.dart';
-import './constants.dart' as Constants;
+import '../Tools/User.dart';
+import '../Tools/constants.dart' as Constants;
 import 'package:flutter/cupertino.dart';
 
 
@@ -21,7 +21,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget{
         actions: <Widget>[
           Padding(
               padding: EdgeInsets.only(right: 20.0, top: 15),
-              child: Text(user.email)
+              child: Text(user.firstName)
           )
         ]
     );

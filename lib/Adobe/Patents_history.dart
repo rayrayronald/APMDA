@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
-import './Patents_monitor.dart';
 import 'package:adobe_xd/page_link.dart';
-import './Patents_history.dart';
+import 'reading.dart';
 
-class Patents_connected extends StatelessWidget {
-  Patents_connected({
+class Patents_history extends StatelessWidget {
+  Patents_history({
     Key key,
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffffffff),
       body: Stack(
         children: <Widget>[
           Container(
@@ -42,9 +40,9 @@ class Patents_connected extends StatelessWidget {
             ),
           ),
           Transform.translate(
-            offset: Offset(517.0, 32.0),
+            offset: Offset(498.0, 30.0),
             child: Text(
-              'Patients Connected',
+              'Patients History',
               style: TextStyle(
                 fontFamily: 'Helvetica Neue',
                 fontSize: 33,
@@ -107,13 +105,199 @@ class Patents_connected extends StatelessWidget {
             ),
           ),
           Transform.translate(
-            offset: Offset(28.0, 126.0),
+            offset: Offset(37.0, 130.0),
+            child: SizedBox(
+              width: 1173.0,
+              height: 79.0,
+              child: Stack(
+                children: <Widget>[
+                  Pinned.fromSize(
+                    bounds: Rect.fromLTWH(0.0, 0.0, 1173.0, 79.0),
+                    size: Size(1173.0, 79.0),
+                    pinLeft: true,
+                    pinRight: true,
+                    pinTop: true,
+                    pinBottom: true,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15.0),
+                        color: const Color(0xfff8f8f8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0x29000000),
+                            offset: Offset(0, 3),
+                            blurRadius: 6,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Pinned.fromSize(
+                    bounds: Rect.fromLTWH(164.0, 14.0, 262.0, 50.0),
+                    size: Size(1173.0, 79.0),
+                    pinLeft: true,
+                    fixedWidth: true,
+                    fixedHeight: true,
+                    child: Text(
+                      'Mary Holiday',
+                      style: TextStyle(
+                        fontFamily: 'Helvetica Neue',
+                        fontSize: 42,
+                        color: const Color(0xff777777),
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Pinned.fromSize(
+                    bounds: Rect.fromLTWH(908.0, 22.0, 203.0, 34.0),
+                    size: Size(1173.0, 79.0),
+                    pinRight: true,
+                    fixedWidth: true,
+                    fixedHeight: true,
+                    child: Text(
+                      'Patient 104815',
+                      style: TextStyle(
+                        fontFamily: 'Helvetica Neue',
+                        fontSize: 29,
+                        color: const Color(0xff777777),
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Pinned.fromSize(
+                    bounds: Rect.fromLTWH(838.0, 22.0, 17.0, 34.0),
+                    size: Size(1173.0, 79.0),
+                    fixedWidth: true,
+                    fixedHeight: true,
+                    child: Text(
+                      'F',
+                      style: TextStyle(
+                        fontFamily: 'Helvetica Neue',
+                        fontSize: 29,
+                        color: const Color(0xff777777),
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Pinned.fromSize(
+                    bounds: Rect.fromLTWH(653.0, 22.0, 151.0, 34.0),
+                    size: Size(1173.0, 79.0),
+                    fixedWidth: true,
+                    fixedHeight: true,
+                    child: Text(
+                      '15/05/1952',
+                      style: TextStyle(
+                        fontFamily: 'Helvetica Neue',
+                        fontSize: 29,
+                        color: const Color(0xff777777),
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                  Pinned.fromSize(
+                    bounds: Rect.fromLTWH(8.0, 11.0, 87.0, 58.0),
+                    size: Size(1173.0, 79.0),
+                    pinLeft: true,
+                    pinTop: true,
+                    pinBottom: true,
+                    fixedWidth: true,
+                    child: PageLink(
+                      links: [
+                        PageLinkInfo(),
+                      ],
+                      child: Stack(
+                        children: <Widget>[
+                          Pinned.fromSize(
+                            bounds: Rect.fromLTWH(0.0, 0.0, 87.0, 58.0),
+                            size: Size(87.0, 58.0),
+                            pinLeft: true,
+                            pinRight: true,
+                            pinTop: true,
+                            pinBottom: true,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20.0),
+                                color: const Color(0xff4aabff),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0x29000000),
+                                    offset: Offset(0, 3),
+                                    blurRadius: 6,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Pinned.fromSize(
+                            bounds: Rect.fromLTWH(13.0, 15.0, 61.0, 29.0),
+                            size: Size(87.0, 58.0),
+                            pinLeft: true,
+                            pinRight: true,
+                            fixedHeight: true,
+                            child: Text(
+                              'Back',
+                              style: TextStyle(
+                                fontFamily: 'Helvetica Neue',
+                                fontSize: 25,
+                                color: const Color(0xfff4f4f4),
+                                fontWeight: FontWeight.w700,
+                              ),
+                              textAlign: TextAlign.left,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Pinned.fromSize(
+                    bounds: Rect.fromLTWH(508.0, 22.0, 95.0, 34.0),
+                    size: Size(1173.0, 79.0),
+                    fixedWidth: true,
+                    fixedHeight: true,
+                    child: Text(
+                      'Bed 24',
+                      style: TextStyle(
+                        fontFamily: 'Helvetica Neue',
+                        fontSize: 29,
+                        color: const Color(0xff777777),
+                        fontWeight: FontWeight.w700,
+                      ),
+                      textAlign: TextAlign.left,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Transform.translate(
+            offset: Offset(28.0, 238.0),
             child: SingleChildScrollView(
               child: Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 20,
                 runSpacing: 20,
-                children: [{}, {}, {}, {}, {}].map((map) {
+                children: [
+                  {
+                    'text': '15/01/2021  14:25:51   -   15/01/2021  23:15:41',
+                  },
+                  {
+                    'text': '14/01/2021  14:25:51   -   14/01/2021  23:15:41',
+                  },
+                  {
+                    'text': '13/01/2021  14:25:51   -   13/01/2021  23:15:41',
+                  },
+                  {
+                    'text': '15/01/2021  14:25:51   -   15/01/2021  23:15:41',
+                  },
+                  {
+                    'text': '15/01/2021  14:25:51   -   15/01/2021  23:15:41',
+                  }
+                ].map((map) {
+                  final text = map['text'];
                   return Transform.translate(
                     offset: Offset(9.0, 6.0),
                     child: SizedBox(
@@ -139,7 +323,7 @@ class Patents_connected extends StatelessWidget {
                           Transform.translate(
                             offset: Offset(26.0, 13.0),
                             child: Text(
-                              'Mary Holiday',
+                              'ECG',
                               style: TextStyle(
                                 fontFamily: 'Helvetica Neue',
                                 fontSize: 42,
@@ -150,35 +334,9 @@ class Patents_connected extends StatelessWidget {
                             ),
                           ),
                           Transform.translate(
-                            offset: Offset(26.0, 70.0),
+                            offset: Offset(24.0, 72.0),
                             child: Text(
-                              'Patient 104815',
-                              style: TextStyle(
-                                fontFamily: 'Helvetica Neue',
-                                fontSize: 29,
-                                color: const Color(0xff777777),
-                                fontWeight: FontWeight.w700,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: Offset(357.0, 70.0),
-                            child: Text(
-                              'F',
-                              style: TextStyle(
-                                fontFamily: 'Helvetica Neue',
-                                fontSize: 29,
-                                color: const Color(0xff777777),
-                                fontWeight: FontWeight.w700,
-                              ),
-                              textAlign: TextAlign.left,
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: Offset(511.0, 70.0),
-                            child: Text(
-                              '15/05/1952',
+                              text,
                               style: TextStyle(
                                 fontFamily: 'Helvetica Neue',
                                 fontSize: 29,
@@ -196,7 +354,7 @@ class Patents_connected extends StatelessWidget {
                                   transition: LinkTransition.Fade,
                                   ease: Curves.easeOut,
                                   duration: 0.3,
-                                  pageBuilder: () => Patents_monitor(),
+                                  pageBuilder: () => reading(),
                                 ),
                               ],
                               child: SizedBox(
@@ -229,12 +387,12 @@ class Patents_connected extends StatelessWidget {
                                     ),
                                     Pinned.fromSize(
                                       bounds:
-                                          Rect.fromLTWH(23.0, 27.0, 93.0, 29.0),
+                                          Rect.fromLTWH(42.0, 27.0, 56.0, 29.0),
                                       size: Size(139.0, 82.0),
                                       fixedWidth: true,
                                       fixedHeight: true,
                                       child: Text(
-                                        'Monitor',
+                                        'View',
                                         style: TextStyle(
                                           fontFamily: 'Helvetica Neue',
                                           fontSize: 25,
@@ -260,67 +418,6 @@ class Patents_connected extends StatelessWidget {
                                 fontWeight: FontWeight.w700,
                               ),
                               textAlign: TextAlign.left,
-                            ),
-                          ),
-                          Transform.translate(
-                            offset: Offset(848.0, 23.0),
-                            child: PageLink(
-                              links: [
-                                PageLinkInfo(
-                                  transition: LinkTransition.Fade,
-                                  ease: Curves.easeOut,
-                                  duration: 0.3,
-                                  pageBuilder: () => Patents_history(),
-                                ),
-                              ],
-                              child: SizedBox(
-                                width: 139.0,
-                                height: 82.0,
-                                child: Stack(
-                                  children: <Widget>[
-                                    Pinned.fromSize(
-                                      bounds:
-                                          Rect.fromLTWH(0.0, 0.0, 139.0, 82.0),
-                                      size: Size(139.0, 82.0),
-                                      pinLeft: true,
-                                      pinRight: true,
-                                      pinTop: true,
-                                      pinBottom: true,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(20.0),
-                                          color: const Color(0xff4aabff),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: const Color(0x29000000),
-                                              offset: Offset(0, 3),
-                                              blurRadius: 6,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Pinned.fromSize(
-                                      bounds:
-                                          Rect.fromLTWH(27.0, 27.0, 85.0, 29.0),
-                                      size: Size(139.0, 82.0),
-                                      fixedWidth: true,
-                                      fixedHeight: true,
-                                      child: Text(
-                                        'History',
-                                        style: TextStyle(
-                                          fontFamily: 'Helvetica Neue',
-                                          fontSize: 25,
-                                          color: const Color(0xfff4f4f4),
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ),
                           ),
                         ],

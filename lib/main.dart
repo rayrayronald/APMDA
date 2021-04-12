@@ -3,9 +3,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import './patients.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import './constants.dart' as Constants;
-import './helper.dart';
-import './User.dart';
+import 'Tools/constants.dart' as Constants;
+import 'Tools/helper.dart';
+import 'Tools/User.dart';
 import './LoginScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +27,9 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   // Define an async function to initialize FlutterFire
   void initializeFlutterFire() async {
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    // await prefs.setBool('sensor_connected', false);
+
     try {
       await Firebase.initializeApp();
       // Choice to keep log in status
@@ -36,7 +39,6 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
       });
     } catch (e) {
       print ("error catch");
-
       print (e);
       print ("error!!!!");
       // Set `_error` state to true if Firebase initialization fails
@@ -110,6 +112,7 @@ class MyAppState extends State<MyApp> with WidgetsBindingObserver {
     initializeFlutterFire();
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+
   }
   @override
   void dispose() {

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
-import './Patents_monitor.dart';
 import 'package:adobe_xd/page_link.dart';
-import './Patents_history.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'Patents_history.dart';
+import 'Patents_monitor.dart';
 
 class Patents_A1 extends StatelessWidget {
   Patents_A1({

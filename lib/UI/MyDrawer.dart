@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
-import './constants.dart' as Constants;
+import '../Tools/constants.dart' as Constants;
 
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/cupertino.dart';
-import './helper.dart';
-import './main.dart';
-import './LoginScreen.dart';
+import '../Tools/helper.dart';
+import '../main.dart';
+import '../LoginScreen.dart';
+import '../Tools/User.dart';
 
 class MyDrawer extends StatelessWidget {
-  MyDrawer();
+  MyDrawer({@required this.user});
+
+  final User user;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +22,7 @@ class MyDrawer extends StatelessWidget {
                 children: <Widget>[
                   DrawerHeader(
                     child: Text(
-                      'Menu',
+                      user.email,
                       style: TextStyle(color: Colors.white),
                     ),
                     decoration: BoxDecoration(

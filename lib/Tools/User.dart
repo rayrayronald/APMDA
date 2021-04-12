@@ -31,8 +31,8 @@ class User {
         active: true,
         userID: user_import.uid,
 
-        firstName: '.',
-        lastName: '.',
+        firstName: 'Dr Charles',
+        lastName: 'Dr Charles',
         phoneNumber: '.',
         profilePictureURL: '.');
   }

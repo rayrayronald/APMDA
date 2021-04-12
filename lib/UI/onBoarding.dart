@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:page_view_indicators/circle_page_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import './helper.dart';
+import '../Tools/helper.dart';
 
-import './constants.dart' as Constants;
-import './LoginScreen.dart';
+import '../Tools/constants.dart' as Constants;
+import '../LoginScreen.dart';
 
 final _currentPageNotifier = ValueNotifier<int>(0);
 

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "165031281109",
+    "firebase_url": "https://apmda-499b8.firebaseio.com",
+    "project_id": "apmda-499b8",
+    "storage_bucket": "apmda-499b8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165031281109:android:4c398569f8fc91b369fd5c",
+        "android_client_info": {
+          "package_name": "com.example.apmda"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "165031281109-dlbb38acc23jbg46tk91on4nehg86v4b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATh0earrpTfg7-Fth_JrQ0PmEnBQCfFjM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "165031281109-dlbb38acc23jbg46tk91on4nehg86v4b.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "165031281109-unqjhuqs134ss96f894ej80gldhc3nqt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.yourcompany.apmda"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

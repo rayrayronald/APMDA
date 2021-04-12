@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:adobe_xd/pinned.dart';
 import 'package:adobe_xd/page_link.dart';
-import './Sensor_connect.dart';
-import './reading.dart';
+import 'Sensor_connect.dart';
+import 'reading.dart';
 
 class Patents_monitor extends StatelessWidget {
   Patents_monitor({

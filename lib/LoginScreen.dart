@@ -1,13 +1,13 @@
 
 import 'package:flutter/material.dart';
-import './Log_in.dart';
+import 'Adobe/Log_in.dart';
 import './patients.dart';
 import './Time_series_chart.dart';
 import './Testing.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import './constants.dart' as Constants;
-import './helper.dart';
-import './User.dart';
+import 'Tools/constants.dart' as Constants;
+import 'Tools/helper.dart';
+import 'Tools/User.dart';
 import './main.dart';
 
 
@@ -26,7 +26,16 @@ class _LoginScreen extends State<LoginScreen> {
   GlobalKey<FormState> _key = new GlobalKey();
   AutovalidateMode _validate = AutovalidateMode.disabled;
   String email = Constants.EMAIL, password = Constants.PASSWORD;
+  MediaQueryData mediaData;
 
+  @override
+
+  void initState() {
+    super.initState();
+
+    //mediaData = MediaQuery.of(context);
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +50,7 @@ class _LoginScreen extends State<LoginScreen> {
             children: [
               Container(
                 width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.4,
+                height: 200 + MediaQuery.of(context).size.height * 0.2,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20.0),
                   color: const Color(Constants.COLOR_BACKGROUND),
@@ -70,12 +79,21 @@ class _LoginScreen extends State<LoginScreen> {
                           ),
                         ],
                       ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'NHS patient monitoring app',
+                            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold, color: Colors.white),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                       ConstrainedBox(
                         constraints: BoxConstraints(minWidth: double.infinity),
                         child: Padding(
-                          padding:
-                          const EdgeInsets.only(top: 32.0, right: 24.0, left: 24.0),
+                          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05, right: 24.0, left: 24.0),
                           child: TextFormField(
                               textAlignVertical: TextAlignVertical.center,
                               textInputAction: TextInputAction.next,
@@ -106,8 +124,7 @@ class _LoginScreen extends State<LoginScreen> {
                       ConstrainedBox(
                         constraints: BoxConstraints(minWidth: double.infinity),
                         child: Padding(
-                          padding:
-                          const EdgeInsets.only(top: 32.0, right: 24.0, left: 24.0),
+                          padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05, right: 24.0, left: 24.0),
                           child: TextFormField(
                               textAlignVertical: TextAlignVertical.center,
                               //initialValue: 'apmdaNHS',
@@ -138,8 +155,7 @@ class _LoginScreen extends State<LoginScreen> {
                         ),
                       ),
                       Padding(
-                        padding:
-                        const EdgeInsets.only(right: 40.0, left: 40.0, top: 40),
+                        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.05, left: 40.0, right: 40),
                         child: ConstrainedBox(
                           constraints: const BoxConstraints(minWidth: double.infinity),
                           child: RaisedButton(
@@ -166,46 +182,47 @@ class _LoginScreen extends State<LoginScreen> {
 
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: ElevatedButton(
-                  child: Text('Database'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => PushData()),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: ElevatedButton(
-                  child: Text('Saving and Reading data'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => SavePage()),
-                    );
-                  },
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: ElevatedButton(
-                  child: Text('UI/UX app demo'),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Log_in()),
-                    );
-                  },
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(20.0),
+              //   child: ElevatedButton(
+              //     child: Text('Database'),
+              //     onPressed: () {
+              //       // Navigator.push(
+              //       //   context,
+              //       //   MaterialPageRoute(builder: (context) => PushData()),
+              //       // );
+              //     },
+              //   ),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.all(20.0),
+              //   child: ElevatedButton(
+              //     child: Text('Saving and Reading data'),
+              //     onPressed: () {
+              //       // Navigator.push(
+              //       //   context,
+              //       //   MaterialPageRoute(builder: (context) => _MyHomePage()),
+              //       // );
+              //     },
+              //   ),
+              // ),
+              // Padding(
+              //   padding: const EdgeInsets.all(20.0),
+              //   child: ElevatedButton(
+              //     child: Text('UI/UX app demo'),
+              //     onPressed: () {
+              //       Navigator.push(
+              //         context,
+              //         MaterialPageRoute(builder: (context) => Log_in()),
+              //       );
+              //     },
+              //   ),
+              // ),
             ],
           ),
         ],
       ),
+
     );
   }
 
@@ -254,6 +271,8 @@ class _LoginScreen extends State<LoginScreen> {
 
     } on auth.FirebaseAuthException catch (exception) {
       hideProgress();
+      print('Failed with error code: ${exception.code}');
+      print(exception.message);
       switch ((exception).code) {
         case "invalid-email":
           showAlertDialog(context, 'Couldn\'t Authenticate', 'Wrong Email format');

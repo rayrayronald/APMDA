@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './Patents_connected.dart';
+import 'Patents_connected.dart';
 import 'package:adobe_xd/page_link.dart';
 import 'package:adobe_xd/pinned.dart';
 
