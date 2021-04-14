@@ -44,7 +44,7 @@ dependencies:
   flutter_blue: ^0.7.2
   flutter_reactive_ble: ^2.7.3
   flutter_bluetooth_serial: ^0.2.2
-#  js: ^0.6.1
+  js: ^0.6.2
 
 
 

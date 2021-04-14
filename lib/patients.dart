@@ -122,7 +122,7 @@ class _patients extends State<patients> {
                                                             onPressed: () {
                                                               Navigator.pop(context);
                                                               js.context.callMethod('confirm', ['Hello from Dart!']);
-                                                              showConfirm("second");
+                                                              // showConfirm("second");
 
                                                               js.context.callMethod('chrome_ble');
                                                             },
@@ -153,7 +153,9 @@ class _patients extends State<patients> {
                                                             child: Text("Serial"),
                                                             onPressed: () {
                                                               Navigator.pop(context);
-                                                              push(context, serial(user: user));
+                                                              users.doc(document.id).update({'sensor_connected': true});
+                                                              users.doc(document.id).update({'sensor_chosen': 'EZ Link'});
+                                                              push(context, serial(user: user, patient: document.id, reference: users.doc(document.id), sensor: document["sensor_chosen"]));
                                                             },
                                                           ),
                                                     ]

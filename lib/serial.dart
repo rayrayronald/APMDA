@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:my_app/UI/MyDrawer.dart';
+import 'package:my_app/serial_data.dart';
 import 'Tools/User.dart';
 import 'Tools/helper.dart';
 import 'UI/MyAppBar.dart';
@@ -19,19 +21,25 @@ import 'dart:convert';
 
 class serial extends StatefulWidget {
   final User user;
+  final String patient;
+  final DocumentReference reference;
+  final String sensor;
 
-  serial({@required this.user});
+  serial({@required this.user, @required this.patient, @required this.reference, @required this.sensor});
 
   @override
   State createState() {
-    return _serial(user);
+    return _serial(this.user, this.patient, this.reference, this. sensor);
   }
 }
 
 class _serial extends State<serial> {
   final User user;
+  final String patient;
+  final DocumentReference reference;
+  final String sensor;
 
-  _serial(this.user);
+  _serial(this.user, this.patient, this.reference, this. sensor);
 
   // Initializing the Bluetooth connection state to be unknown
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
@@ -46,14 +54,9 @@ class _serial extends State<serial> {
 
   bool isDisconnecting = false;
 
-  Map<String, Color> colors = {
-    'onBorderColor': Colors.green,
-    'offBorderColor': Colors.red,
-    'neutralBorderColor': Colors.transparent,
-    'onTextColor': Colors.green[700],
-    'offTextColor': Colors.red[700],
-    'neutralTextColor': Colors.blue,
-  };
+  int bytePackage = 0;
+  Uint8List byteBuffer = Uint8List(4);
+
 
   // To track whether the device is still connected to Bluetooth
   bool get isConnected => connection != null && connection.isConnected;
@@ -63,6 +66,10 @@ class _serial extends State<serial> {
   BluetoothDevice _device;
   bool _connected = false;
   bool _isButtonUnavailable = false;
+
+
+  List<_MeasuredData> data = [];
+
 
   @override
   void initState() {
@@ -99,11 +106,11 @@ class _serial extends State<serial> {
   @override
   void dispose() {
     // Avoid memory leak and disconnect
-    if (isConnected) {
-      isDisconnecting = true;
-      connection.dispose();
-      connection = null;
-    }
+    // if (isConnected) {
+    //   isDisconnecting = true;
+    //   connection.dispose();
+    //   connection = null;
+    // }
 
     super.dispose();
   }
@@ -156,8 +163,8 @@ class _serial extends State<serial> {
       home: Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Flutter Bluetooth"),
-          backgroundColor: Colors.deepPurple,
+          title: Text("Live data from sensor"),
+          backgroundColor: Colors.blue,
           actions: <Widget>[
             FlatButton.icon(
               icon: Icon(
@@ -173,7 +180,7 @@ class _serial extends State<serial> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              splashColor: Colors.deepPurple,
+              splashColor: Colors.grey,
               onPressed: () async {
                 // So, that when new devices are paired
                 // while the app is running, user can refresh
@@ -193,8 +200,8 @@ class _serial extends State<serial> {
                 visible: _isButtonUnavailable &&
                     _bluetoothState == BluetoothState.STATE_ON,
                 child: LinearProgressIndicator(
-                  backgroundColor: Colors.yellow,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  backgroundColor: Colors.blue,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                 ),
               ),
               Padding(
@@ -245,11 +252,23 @@ class _serial extends State<serial> {
                     children: <Widget>[
                       Padding(
                         padding: const EdgeInsets.only(top: 10),
-                        child: Text(
-                          "PAIRED DEVICES",
-                          style: TextStyle(fontSize: 24, color: Colors.blue),
-                          textAlign: TextAlign.center,
-                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Select Sensor",
+                              style: TextStyle(fontSize: 24, color: Colors.blue),
+                              textAlign: TextAlign.center,
+                            ),
+                            RaisedButton(
+                              elevation: 2,
+                              child: Text("Bluetooth Settings"),
+                              onPressed: () {
+                                FlutterBluetoothSerial.instance.openSettings();
+                              },
+                            ),
+                          ],
+                        )
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -278,90 +297,17 @@ class _serial extends State<serial> {
                           ],
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            side: new BorderSide(
-                              color: _deviceState == 0
-                                  ? colors['neutralBorderColor']
-                                  : _deviceState == 1
-                                  ? colors['onBorderColor']
-                                  : colors['offBorderColor'],
-                              width: 3,
-                            ),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          elevation: _deviceState == 0 ? 4 : 0,
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: <Widget>[
-                                Expanded(
-                                  child: Text(
-                                    "DEVICE 1",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      color: _deviceState == 0
-                                          ? colors['neutralTextColor']
-                                          : _deviceState == 1
-                                          ? colors['onTextColor']
-                                          : colors['offTextColor'],
-                                    ),
-                                  ),
-                                ),
-                                FlatButton(
-                                  onPressed: _connected
-                                      ? _sendOnMessageToBluetooth
-                                      : null,
-                                  child: Text("ON"),
-                                ),
-                                FlatButton(
-                                  onPressed: _connected
-                                      ? _sendOffMessageToBluetooth
-                                      : null,
-                                  child: Text("OFF"),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      RaisedButton(
+                        child: Text("See graph"),
+                        onPressed: () {
+                          push(context, serial_data(user: user, patient: patient, reference: reference, sensor: sensor, connection: connection,));
+
+                        },
                       ),
                     ],
                   ),
-                  Container(
-                    color: Colors.blue,
-                  ),
                 ],
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "NOTE: If you cannot find the device in the list, please pair the device by going to the bluetooth settings",
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
-                        ),
-                        SizedBox(height: 15),
-                        RaisedButton(
-                          elevation: 2,
-                          child: Text("Bluetooth Settings"),
-                          onPressed: () {
-                            FlutterBluetoothSerial.instance.openSettings();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              )
             ],
           ),
         ),
@@ -405,30 +351,42 @@ class _serial extends State<serial> {
           });
 
           try {
-            connection.input.listen((Uint8List data) {
-              print('Data incoming: ${data}');
-              // connection.output.add(data); // Sending data
-
-              // if (ascii.decode(data).contains('!')) {
-              //   connection.finish(); // Closing connection
-              //   print('Disconnecting by local host');
-              // }
-            });
+            // connection.input.listen((Uint8List data) {
+            //   // print('Data incoming: ${data}');
+            //
+            //   processByte(data);
+            //
+            //   // connection.output.add(data); // Sending data
+            //
+            //   // if (ascii.decode(data).contains('!')) {
+            //   //   connection.finish(); // Closing connection
+            //   //   print('Disconnecting by local host');
+            //   // }
+            // }).onDone(() {
+            //   if (isDisconnecting) {
+            //     print('Disconnecting locally!');
+            //   } else {
+            //     print('Disconnected remotely!');
+            //   }
+            //   if (this.mounted) {
+            //     setState(() {});
+            //   }
+            // });
           }
           catch (exception) {
             print('Cannot connect, exception occured');
           }
 
-          connection.input.listen(null).onDone(() {
-            if (isDisconnecting) {
-              print('Disconnecting locally!');
-            } else {
-              print('Disconnected remotely!');
-            }
-            if (this.mounted) {
-              setState(() {});
-            }
-          });
+          // connection.input.listen(null).onDone(() {
+          //   if (isDisconnecting) {
+          //     print('Disconnecting locally!');
+          //   } else {
+          //     print('Disconnected remotely!');
+          //   }
+          //   if (this.mounted) {
+          //     setState(() {});
+          //   }
+          // });
         }).catchError((error) {
           print('Cannot connect, exception occurred');
           print(error);
@@ -465,6 +423,25 @@ class _serial extends State<serial> {
   //     }
   //   }
   // }
+
+  void processByte(Uint8List data) async {
+    for (int i = 0; i < data.length; i++) {
+      byteBuffer[bytePackage] = data[i];
+      bytePackage++;
+      // print(bytePackage);
+
+      if (bytePackage == 4) {
+        // print(Endian.host == Endian.little);
+        bytePackage = 0;
+
+        ByteData byteData = ByteData.sublistView(byteBuffer);
+        print("Channel 1: " + byteData.getUint16(0, Endian.big).toString() + " Channel 2: " + byteData.getUint16(2, Endian.big).toString());
+        // Uint16List sixteenBitList = byteBuffer.buffer.asUint16List();
+        // print(sixteenBitList);
+
+      }
+    }
+  }
 
   // Method to disconnect bluetooth
   void _disconnect() async {
@@ -521,4 +498,11 @@ class _serial extends State<serial> {
       ),
     );
   }
+}
+
+class _MeasuredData {
+  _MeasuredData(this.time, this.measurement, this.info);
+  final DateTime time;
+  final double measurement;
+  String info;
 }
