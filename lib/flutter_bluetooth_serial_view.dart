@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:flutter/cupertino.dart';
@@ -6,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:my_app/UI/MyDrawer.dart';
+import 'package:my_app/Tools/helper.dart';
+import 'package:my_app/flutter_reactive_ble.dart';
 import 'package:my_app/serial_data.dart';
 import 'Tools/User.dart';
 import 'Tools/helper.dart';
@@ -18,32 +19,33 @@ import './history.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:convert';
+import 'package:my_app/bundler/stub_js.dart' if (dart.library.js) 'dart:js' as js;
+// import 'dart:js' as js;
 
-class serial extends StatefulWidget {
+
+class flutter_bluetooth_serial_view extends StatefulWidget {
   final User user;
   final String patient;
   final DocumentReference reference;
-  final String sensor;
 
-  serial({@required this.user, @required this.patient, @required this.reference, @required this.sensor});
+  flutter_bluetooth_serial_view({@required this.user, @required this.patient, @required this.reference});
 
   @override
   State createState() {
-    return _serial(this.user, this.patient, this.reference, this. sensor);
+    return _flutter_bluetooth_serial_view(this.user, this.patient, this.reference);
   }
 }
 
-class _serial extends State<serial> {
+class _flutter_bluetooth_serial_view extends State<flutter_bluetooth_serial_view> {
   final User user;
   final String patient;
   final DocumentReference reference;
-  final String sensor;
 
-  _serial(this.user, this.patient, this.reference, this. sensor);
+  _flutter_bluetooth_serial_view(this.user, this.patient, this.reference);
 
   // Initializing the Bluetooth connection state to be unknown
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
-  // Initializing a global key, as it would help us in showing a SnackBar later
+  // Initializing a global key for SnackBar
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   // Get the instance of the Bluetooth
   FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
@@ -66,9 +68,11 @@ class _serial extends State<serial> {
   BluetoothDevice _device;
   bool _connected = false;
   bool _isButtonUnavailable = false;
+  String _deviceName;
 
+  String fromSerial = getFromJS("value");
 
-  List<_MeasuredData> data = [];
+  // List<_MeasuredData> data = [];
 
 
   @override
@@ -161,9 +165,15 @@ class _serial extends State<serial> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Live data from sensor"),
+          title: Text("Select Sensor"),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back_ios),
+            iconSize: 20.0,
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
           backgroundColor: Colors.blue,
           actions: <Widget>[
             FlatButton.icon(
@@ -186,7 +196,7 @@ class _serial extends State<serial> {
                 // while the app is running, user can refresh
                 // the paired devices list.
                 await getPairedDevices().then((_) {
-                  show('Device list refreshed');
+                  show(context, 'Device list refreshed');
                 });
               },
             ),
@@ -204,6 +214,7 @@ class _serial extends State<serial> {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),
                 ),
               ),
+
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: Row(
@@ -256,7 +267,7 @@ class _serial extends State<serial> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Select Sensor",
+                              js.context.callMethod("test") ?? "Select Sensor",
                               style: TextStyle(fontSize: 24, color: Colors.blue),
                               textAlign: TextAlign.center,
                             ),
@@ -300,10 +311,21 @@ class _serial extends State<serial> {
                       RaisedButton(
                         child: Text("See graph"),
                         onPressed: () {
-                          push(context, serial_data(user: user, patient: patient, reference: reference, sensor: sensor, connection: connection,));
+                          print (_device.toString());
+                          print (_device.type);
+                          if (_device.address == null) {
+                            // push(context, data(user: user, patient: patient, reference: reference, sensor: _device.name));
+                            show(context, "Choose a connected bluetooth serial device.");
 
+                          // } else if (js.JsObject.fromBrowserObject(js.context['state'])['connected']){
+                          //   push(context, serial_data(user: user, patient: patient, reference: reference, sensor: _device.name, connection: null));
+
+                          } else {
+                            push(context, serial_data(user: user, patient: patient, reference: reference, sensor: _device.name, connection: connection));
+                          }
                         },
                       ),
+                      Text(fromSerial ?? " "),
                     ],
                   ),
                 ],
@@ -318,6 +340,18 @@ class _serial extends State<serial> {
   // Create the List of devices to be shown in Dropdown Menu
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
+    // items.add(DropdownMenuItem(
+    //   child: Text("SPO2 random data"),
+    //   value: new BluetoothDevice(name: "SPO2")
+    // ));
+    // items.add(DropdownMenuItem(
+    //     child: Text("Serial"),
+    //     value: new BluetoothDevice(name: "Serial")
+    // ));
+    // items.add(DropdownMenuItem(
+    //     child: Text("Blood Glucose random data"),
+    //     value: new BluetoothDevice(name: "Blood Glucose")
+    // ));
     if (_devicesList.isEmpty) {
       items.add(DropdownMenuItem(
         child: Text('NONE'),
@@ -339,7 +373,11 @@ class _serial extends State<serial> {
       _isButtonUnavailable = true;
     });
     if (_device == null) {
-      show('No device selected');
+      show(context, 'No device selected');
+    } else if (_device.address == null){
+      reference.update({'sensor_connected': true});
+      reference.update({'sensor_chosen': _device.name});
+
     } else {
       if (!isConnected) {
         await BluetoothConnection.toAddress(_device.address)
@@ -349,29 +387,10 @@ class _serial extends State<serial> {
           setState(() {
             _connected = true;
           });
-
+          reference.update({'sensor_connected': true});
+          reference.update({'sensor_chosen': _device.name});
           try {
-            // connection.input.listen((Uint8List data) {
-            //   // print('Data incoming: ${data}');
-            //
-            //   processByte(data);
-            //
-            //   // connection.output.add(data); // Sending data
-            //
-            //   // if (ascii.decode(data).contains('!')) {
-            //   //   connection.finish(); // Closing connection
-            //   //   print('Disconnecting by local host');
-            //   // }
-            // }).onDone(() {
-            //   if (isDisconnecting) {
-            //     print('Disconnecting locally!');
-            //   } else {
-            //     print('Disconnected remotely!');
-            //   }
-            //   if (this.mounted) {
-            //     setState(() {});
-            //   }
-            // });
+
           }
           catch (exception) {
             print('Cannot connect, exception occured');
@@ -391,38 +410,12 @@ class _serial extends State<serial> {
           print('Cannot connect, exception occurred');
           print(error);
         });
-        show('Device connected');
+        show(context, 'Device connected');
 
         setState(() => _isButtonUnavailable = false);
       }
     }
   }
-
-  // void _onDataReceived(Uint8List data) {
-  //   // Allocate buffer for parsed data
-  //   int backspacesCounter = 0;
-  //   data.forEach((byte) {
-  //     if (byte == 8 || byte == 127) {
-  //       backspacesCounter++;
-  //     }
-  //   });
-  //   Uint8List buffer = Uint8List(data.length - backspacesCounter);
-  //   int bufferIndex = buffer.length;
-
-  //   // Apply backspace control character
-  //   backspacesCounter = 0;
-  //   for (int i = data.length - 1; i >= 0; i--) {
-  //     if (data[i] == 8 || data[i] == 127) {
-  //       backspacesCounter++;
-  //     } else {
-  //       if (backspacesCounter > 0) {
-  //         backspacesCounter--;
-  //       } else {
-  //         buffer[--bufferIndex] = data[i];
-  //       }
-  //     }
-  //   }
-  // }
 
   void processByte(Uint8List data) async {
     for (int i = 0; i < data.length; i++) {
@@ -451,7 +444,7 @@ class _serial extends State<serial> {
     });
 
     await connection.close();
-    show('Device disconnected');
+    show(context, 'Device disconnected');
     if (!connection.isConnected) {
       setState(() {
         _connected = false;
@@ -460,49 +453,4 @@ class _serial extends State<serial> {
     }
   }
 
-  // Method to send message,
-  // for turning the Bluetooth device on
-  void _sendOnMessageToBluetooth() async {
-    connection.output.add(utf8.encode("1" + "\r\n"));
-    await connection.output.allSent;
-    show('Device Turned On');
-    setState(() {
-      _deviceState = 1; // device on
-    });
-  }
-
-  // Method to send message,
-  // for turning the Bluetooth device off
-  void _sendOffMessageToBluetooth() async {
-    connection.output.add(utf8.encode("0" + "\r\n"));
-    await connection.output.allSent;
-    show('Device Turned Off');
-    setState(() {
-      _deviceState = -1; // device off
-    });
-  }
-
-  // Method to show a Snackbar,
-  // taking message as the text
-  Future show(
-      String message, {
-        Duration duration: const Duration(seconds: 3),
-      }) async {
-    await new Future.delayed(new Duration(milliseconds: 100));
-    _scaffoldKey.currentState.showSnackBar(
-      new SnackBar(
-        content: new Text(
-          message,
-        ),
-        duration: duration,
-      ),
-    );
-  }
-}
-
-class _MeasuredData {
-  _MeasuredData(this.time, this.measurement, this.info);
-  final DateTime time;
-  final double measurement;
-  String info;
 }

@@ -1,72 +1,78 @@
-function chrome_ble() {
+let text;
+let port;
+let reader;
+let inputDone;
+let outputDone;
+let inputStream;
+let outputStream;
 
+window.state = {
+    value: null,
+    connected: false
+}
+
+function getter(key) {
+    return window.state[key];
+}
+
+function chrome_ble() {
 navigator.bluetooth.requestDevice({
   acceptAllDevices: true,
 })
-.then(device => { /* … */ })
-.catch(error => { console.error(error); });
+.then(device => {
+        // Human-readable name of the device.
+        console.log(device.name);
+
+        // Attempts to connect to remote GATT Server.
+        return device.gatt.connect();
+      })
+.catch(error => {    alert(error)
+});
 }
+
 
 async function chrome_serial() {
+disconnect()
+try {
 port = await navigator.serial.requestPort();
 // - Wait for the port to open.
-await port.open({ baudate: 9600 });
+await port.open({ baudRate: 9600 });
+} catch (error) {
+    alert(error)
+} finally {
+state['connected'] = true;
+const reader = port.readable.getReader();
 
-
-// CODELAB: Add code to read the stream here.
-let decoder = new TextDecoderStream();
-inputDone = port.readable.pipeTo(decoder.writable);
-inputStream = decoder.readable.pipeThrough(new TransformStream(new LineBreakTransformer()));
-
-reader = inputStream.getReader();
-readLoop();
-}
-
-async function readLoop() {
-// CODELAB: Add read loop here.
-    while (true) {
-      const { value, done } = await reader.read();
-      if (value) {
-        log.textContent += value + '\n';
-      }
-      if (done) {
-        console.log('[readLoop] DONE', done);
-        reader.releaseLock();
-        break;
-      }
+// Listen to data coming from the serial device.
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) {
+    // Allow the serial port to be closed later.
+    reader.releaseLock();
+    break;
+  }
+    if (value) {
+      state['value'] = value;
+      alert(value);
     }
 }
-
-class LineBreakTransformer {
-  constructor() {
-    // A container for holding stream data until a new line.
-    this.container = '';
-  }
-
-  transform(chunk, controller) {
-    // CODELAB: Handle incoming chunk
-    this.container += chunk;
-    const lines = this.container.split('\r\n');
-    this.container = lines.pop();
-    lines.forEach(line => controller.enqueue(line));
-
-  }
-
-  flush(controller) {
-    // CODELAB: Flush the stream.
-    controller.enqueue(this.container);
-
-  }
 }
+
+}
+
+async function disconnect() {
+state['connected'] = false;
+if (reader) {
+  await reader.cancel();
+  await inputDone.catch(() => {});
+  reader = null;
+  inputDone = null;
+}
+await port.close();
+port = null;
+}
+
+
 function alertMessage(text) {
     alert(text)
-}
-
-//----1---//
-function connectDevice() {
-ConnectBLE.postMessage('ble.connect');
-}
-//----2---//
-function receiveDeviceStatus(text){
-console.log('*** Update Device Status ***');
 }

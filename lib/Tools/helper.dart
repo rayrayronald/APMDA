@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
@@ -7,6 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'constants.dart';
+import 'package:my_app/bundler/stub_js.dart' if (dart.library.js) 'dart:js' as js;
 
 
 
@@ -30,8 +33,26 @@ FBI() async{
   //   print(e);
   // }
 }
+ getFromJS(String name) {
+  return js.context.callMethod("getter",[name]);
+}
 
 
+
+Future show(BuildContext context,
+    String message, {
+      Duration duration: const Duration(seconds: 3),
+    }) async {
+  await new Future.delayed(new Duration(milliseconds: 100));
+  ScaffoldMessenger.of(context).showSnackBar(
+    new SnackBar(
+      content: new Text(
+        message,
+      ),
+      duration: duration,
+    ),
+  );
+}
 
 class Patient_Item {
   String name;

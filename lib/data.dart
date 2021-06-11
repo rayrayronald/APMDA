@@ -57,6 +57,7 @@ class _data extends State<data> {
   String reading_ID;
   String annotation_S = "Description";
   bool left = false;
+  bool auto_scroll = false;
 
   ZoomPanBehavior zooming;
   TrackballBehavior trackball;
@@ -65,12 +66,13 @@ class _data extends State<data> {
   DateTimeAxis xAxis;
   MarkerSettings markerSettings;
   ChartSeriesController _chartSeriesController;
-  List<_MeasuredData> data = [];
+  final List<_MeasuredData> dataPoints = [_MeasuredData(DateTime.now(),
+   30 + 10 * math.sin(DateTime.now().second * 24 * (math.pi / 180.0)), "")];
 
 
   @override void initState() {
     Timer.periodic(
-        const Duration(milliseconds: 1000), _updateData);
+        const Duration(milliseconds: 10), _updateData);
     super.initState();
   }
 
@@ -79,18 +81,19 @@ class _data extends State<data> {
     left = true;
     super.dispose();
   }
-  
+
 
   @override
   Widget build(BuildContext context) {
-    trackball = TrackballBehavior(enable: true);
-    tooltip = TooltipBehavior(enable: true);
+    trackball = TrackballBehavior(enable: false);
+    tooltip = TooltipBehavior(enable: false);
     selection = SelectionBehavior(
         enable: true,
         selectedColor: Colors.red,
         selectedBorderWidth: 1,
         unselectedColor: Colors.grey,
-        unselectedBorderWidth: 1);
+        unselectedBorderWidth: 1
+    );
     zooming = ZoomPanBehavior(
       enableSelectionZooming: false,
       enableDoubleTapZooming: false,
@@ -108,11 +111,11 @@ class _data extends State<data> {
       // visibleMaximum: data[3].year
     );
     markerSettings = MarkerSettings(
-      isVisible: true
+      isVisible: false
     );
 
     // Show a loader until FlutterFire is initialized
-    if (data.length<2) {
+    if (dataPoints.length<2) {
       return Container(
         color: Colors.white,
         child: Center(
@@ -130,11 +133,11 @@ class _data extends State<data> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                //Initialize the spark charts widget
-                child: Text ("Current Reading:  " + reading.round().toString() +" mV")
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.all(10.0),
+              //   //Initialize the spark charts widget
+              //   child: Text ("Current Reading:  " + reading.round().toString() +" mV")
+              // ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 //Initialize the spark charts widget
@@ -176,10 +179,10 @@ class _data extends State<data> {
               onSelectionChanged: (SelectionArgs args) {
                 print(args.pointIndex);
                 setState(() {
-                  selected_DT = data[args.pointIndex].time;
-                  seleted_measurement = data[args.pointIndex].measurement;
+                  selected_DT = dataPoints[args.pointIndex].time;
+                  seleted_measurement = dataPoints[args.pointIndex].measurement;
                   selected_index = args.pointIndex;
-                  selected_annotation = data[args.pointIndex].info;
+                  selected_annotation = dataPoints[args.pointIndex].info;
                 });
               },
               series: <ChartSeries<_MeasuredData, DateTime>>[
@@ -189,7 +192,7 @@ class _data extends State<data> {
                   onRendererCreated: (ChartSeriesController controller) {
                     _chartSeriesController = controller;
                   },
-                  dataSource: data,
+                  dataSource: dataPoints,
                   xValueMapper: (_MeasuredData datapoint, _) => datapoint.time,
                   yValueMapper: (_MeasuredData datapoint, _) => datapoint.measurement,
                   // Map the data label text for each point from the data source
@@ -220,11 +223,27 @@ class _data extends State<data> {
                 child: ElevatedButton(
                   child: Text('Scroll to end'),
                   onPressed: () {
-                    // zooming.zoomIn();
-                    zooming.zoomToSingleAxis(xAxis,0.99,10/data.length);
-                    zooming.panToDirection('right');
-
+                    if (auto_scroll){
+                      setState(() {
+                        auto_scroll = false;
+                      });
+                    } else {
+                      setState(() {
+                        auto_scroll = true;
+                      });
+                    }
                   },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                        if (auto_scroll) {
+                          return Colors.green;
+                        } else {
+                          return Colors.blue;
+                        }// Use the component's default.
+                      },
+                    ),
+                  ),
 
                 ),
               ),
@@ -415,9 +434,9 @@ class _data extends State<data> {
           .then(
               (value) => {
 
-              data[data.length -1].info = "Start",
+              dataPoints[dataPoints.length -1].info = "Start",
         _chartSeriesController.updateDataSource(
-        updatedDataIndexes: <int>[data.length -1],
+        updatedDataIndexes: <int>[dataPoints.length -1],
       ),
 
 
@@ -439,11 +458,11 @@ class _data extends State<data> {
         record_button = "Stop Recording";
       });
     } else {
-      data[data.length -1].info = "End";
+      dataPoints[dataPoints.length -1].info = "End";
       _chartSeriesController.updateDataSource(
-        updatedDataIndexes: <int>[data.length -1],
+        updatedDataIndexes: <int>[dataPoints.length -1],
       );
-      reference.collection("recordings").doc(reading_ID).collection("time_series").doc(data[data.length -1].time.toString()).update({
+      reference.collection("recordings").doc(reading_ID).collection("time_series").doc(dataPoints[dataPoints.length -1].time.toString()).update({
         'annotation': "End"});
       recording = false;
       setState(() {
@@ -454,8 +473,13 @@ class _data extends State<data> {
 
   }
 
+  void scroll_to_end() {
+    // zooming.zoomIn();
+    zooming.zoomToSingleAxis(xAxis,0.99,10/dataPoints.length);
+    zooming.panToDirection('right');
+  }
   void _updateAnnotation(String input) {
-    data[selected_index].info = input;
+    dataPoints[selected_index].info = input;
     _chartSeriesController.updateDataSource(
       updatedDataIndexes: <int>[selected_index],
     );
@@ -464,23 +488,26 @@ class _data extends State<data> {
     });
     reference.collection("recordings").doc(reading_ID).collection("time_series").doc(selected_DT.toString()).update({
       'annotation': input});
-    }
+  }
 
   void _updateData(Timer timer) {
     if (left) {
       timer.cancel();
       return;
     }
-
-    DateTime timestamp = new DateTime.now();
+    DateTime timestamp = DateTime.now();
     double generated = 30 + 10 * math.sin(timestamp.second * 24 * (math.pi / 180.0)) + 5*rng.nextDouble();
     setState(() {
       reading = generated;
     });
-    data.add(_MeasuredData(timestamp, generated, ""));
+    dataPoints.add(_MeasuredData(timestamp, generated, ""));
     _chartSeriesController.updateDataSource(
-      addedDataIndexes: <int>[data.length - 1],
+      addedDataIndexes: <int>[dataPoints.length - 1],
     );
+    print("Number of data points: " + dataPoints.length.toString());
+    if (auto_scroll){
+      scroll_to_end();
+    }
     if (recording) {
 
       reference.collection("recordings").doc(reading_ID).collection("time_series").doc(timestamp.toString()).set({

@@ -18,6 +18,7 @@ import 'dart:math' as math;
 import 'Tools/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:my_app/bundler/stub_js.dart' if (dart.library.js) 'dart:js' as js;
 
 
 
@@ -78,21 +79,38 @@ class _serial_data extends State<serial_data> {
 
 
   @override void initState() {
-    // Timer.periodic( const Duration(milliseconds: 1000), _updateData);
+    Uint8List temp;
     super.initState();
+    if (connection != null) {
+      connection.input.listen((Uint8List bytesinput) {
+        // print('Data incoming: ${data}');
+        // print("init listen");
+        processByte(bytesinput);
 
-    connection.input.listen((Uint8List bytesinput) {
-      // print('Data incoming: ${data}');
-      print("init listen");
-      processByte(bytesinput);
+        // connection.output.add(data); // Sending data
 
-      // connection.output.add(data); // Sending data
+        // if (ascii.decode(data).contains('!')) {
+        //   connection.finish(); // Closing connection
+        //   print('Disconnecting by local host');
+        // }
+      });
+    } else if (sensor == "Chrome Web Serial API"){
+      Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+        Uint8List new_data = getFromJS("value");
+        if ( new_data != temp ) {
+          temp = new_data;
+          processByte(new_data);
+        }
+        return;
+      });
 
-      // if (ascii.decode(data).contains('!')) {
-      //   connection.finish(); // Closing connection
-      //   print('Disconnecting by local host');
-      // }
-    });
+
+    } else {
+      Timer.periodic(const Duration(milliseconds: 1000), _updateData);
+
+    }
+
+
   }
 
   @override

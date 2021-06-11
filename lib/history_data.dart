@@ -119,13 +119,13 @@ class _history_data extends State<history_data> with WidgetsBindingObserver {
     Stream collectionStream = reference.collection("time_series").snapshots();
     streamSubscription = collectionStream.listen((value) =>
     {
-    if (value.docs.last.data()["annotation"] == null) {
-        data.add(_MeasuredData(value.docs.last.data()["DateTime_stamp"].toDate(),
-    value.docs.last.data()["measurement"], "")),
+    if (value.docs.last.dataPoints()["annotation"] == null) {
+        data.add(_MeasuredData(value.docs.last.dataPoints()["DateTime_stamp"].toDate(),
+    value.docs.last.dataPoints()["measurement"], "")),
     print("null")
     } else {
-    data.add(_MeasuredData(value.docs.last.data()["DateTime_stamp"].toDate(),
-    value.docs.last.data()["measurement"], value.docs.last.data()["annotation"])),
+    data.add(_MeasuredData(value.docs.last.dataPoints()["DateTime_stamp"].toDate(),
+    value.docs.last.dataPoints()["measurement"], value.docs.last.dataPoints()["annotation"])),
     print("else")
     },
     _chartSeriesController.updateDataSource(
