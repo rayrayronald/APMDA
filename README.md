@@ -2,15 +2,9 @@
 
 A new Flutter project.
 
-## Getting Started
+## Potential Bugs and fixes
 
-This project is a starting point for a Flutter application.
+CanvasKit memory leak
+When the exception was thrown, this was the stack:  https://unpkg.com/canvaskit-wasm@0.24.0/bin/canvaskit.js 150:56              Ma https://unpkg.com/canvaskit-wasm@0.24.0/bin/canvaskit.js 220:103             d https://unpkg.com/canvaskit-wasm@0.24.0/bin/canvaskit.js 1:1                 Paragraph$layout lib/_engine/engine/canvaskit/text.dart 572:18                                layout packages/flutter/src/painting/text_painter.dart 578:5                        layout
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Solution: run with --web-renderer html to force choose html over CanvasKit
