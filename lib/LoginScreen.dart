@@ -179,42 +179,6 @@ class _LoginScreen extends State<LoginScreen> {
 
                 ),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.all(20.0),
-              //   child: ElevatedButton(
-              //     child: Text('Database'),
-              //     onPressed: () {
-              //       // Navigator.push(
-              //       //   context,
-              //       //   MaterialPageRoute(builder: (context) => PushData()),
-              //       // );
-              //     },
-              //   ),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.all(20.0),
-              //   child: ElevatedButton(
-              //     child: Text('Saving and Reading data'),
-              //     onPressed: () {
-              //       // Navigator.push(
-              //       //   context,
-              //       //   MaterialPageRoute(builder: (context) => _MyHomePage()),
-              //       // );
-              //     },
-              //   ),
-              // ),
-              // Padding(
-              //   padding: const EdgeInsets.all(20.0),
-              //   child: ElevatedButton(
-              //     child: Text('UI/UX app demo'),
-              //     onPressed: () {
-              //       Navigator.push(
-              //         context,
-              //         MaterialPageRoute(builder: (context) => Log_in()),
-              //       );
-              //     },
-              //   ),
-              // ),
             ],
           ),
         ],
@@ -249,22 +213,6 @@ class _LoginScreen extends State<LoginScreen> {
       hideProgress();
       MyAppState.currentUser = user;
       return user;
-
-
-      // auth.FirebaseAuth FBA = auth.FirebaseAuth.instance;
-      // FBA.authStateChanges().listen((auth.User user) {
-      //   if (user == null) {
-      //     print('User is currently signed out!');
-      //   } else {
-      //     print('User is signed in! Updating user details with setState()');
-      //     setState(() {
-      //       currentUser = user;
-      //     });
-      //     print(user.uid);
-      //     // print(user.toString());
-      //   }
-      // });
-      // return userCredential.user;
 
     } on auth.FirebaseAuthException catch (exception) {
       hideProgress();
