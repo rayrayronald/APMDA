@@ -9,7 +9,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'constants.dart';
-import 'package:my_app/bundler/stub_js.dart' if (dart.library.js) 'dart:js' as js;
+import 'package:my_app/Tools/stub_js.dart' if (dart.library.js) 'dart:js' as js;
 
 
 

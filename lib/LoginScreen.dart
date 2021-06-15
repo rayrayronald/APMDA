@@ -1,9 +1,6 @@
 
 import 'package:flutter/material.dart';
-import 'Adobe/Log_in.dart';
-import './patients.dart';
-import './Time_series_chart.dart';
-import './Testing.dart';
+import './PatientsScreen.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'Tools/constants.dart' as Constants;
 import 'Tools/helper.dart';
@@ -236,7 +233,7 @@ class _LoginScreen extends State<LoginScreen> {
 
     if (user != null) {
       hideProgress();
-      pushAndRemoveUntil(context, patients(user: user), false);
+      pushAndRemoveUntil(context, PatientsScreen(user: user), false);
     }
   }
 

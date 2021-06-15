@@ -1,44 +1,38 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/UI/MyDrawer.dart';
-import 'package:my_app/bundler/javascript_bundler.dart';
 import 'package:my_app/flutter_bluetooth_serial_view.dart';
 import 'Tools/User.dart';
 import 'Tools/helper.dart';
 import 'UI/MyAppBar.dart';
 import 'UI/MyDrawer.dart';
-import './read.dart';
-import './Testing.dart';
-import './data.dart';
-import './ble.dart';
-import './flutter_reactive_ble.dart';
-import './history.dart';
+import './ChartScreen.dart';
+import './flutter_blue.dart';
+import './HistoryScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'dart:html'; // web only
 // import 'dart:js' as js;
-// import 'package:my_app/bundler/stub_bundler.dart' if (dart.library.js) 'package:my_app/bundler/javascript_bundler.dart';
-import 'package:my_app/bundler/stub_js.dart' if (dart.library.js) 'dart:js' as js;
+import 'package:my_app/Tools/stub_js.dart' if (dart.library.js) 'dart:js' as js;
 // import 'package:js/js.dart';
-import 'package:my_app/serial_data.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 
 
-class patients extends StatefulWidget {
+class PatientsScreen extends StatefulWidget {
   final User user;
 
-  patients({@required this.user});
+  PatientsScreen({@required this.user});
 
   @override
   State createState() {
-    return _patients(user);
+    return _PatientsScreen(user);
   }
 }
 
-class _patients extends State<patients> {
+class _PatientsScreen extends State<PatientsScreen> {
   final User user;
 
-  _patients(this.user);
+  _PatientsScreen(this.user);
   // Initializing a global key for SnackBar
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   String sensor = "";
@@ -142,7 +136,7 @@ class _patients extends State<patients> {
                                                                 if (getFromJS("connected")){
                                                                   users.doc(document.id).update({'sensor_connected': true});
                                                                   users.doc(document.id).update({'sensor_chosen': 'Chrome Web Serial API'});
-                                                                  push(context, serial_data(user: user, patient: document.id, reference: users.doc(document.id), sensor: "Chrome Web Serial API", connection: null));
+                                                                  push(context, ChartScreen(user: user, patient: document.id, reference: users.doc(document.id), sensor: "Chrome Web Serial API", document_name: "NONE", connection: null));
                                                                 }
                                                               }
                                                             } : () {
@@ -164,8 +158,9 @@ class _patients extends State<patients> {
                                                           TextButton(
                                                             child: Text("flutter_bluetooth_serial"),
                                                             onPressed: kIsWeb ? () {
-                                                              show(context, "Not supported in web app mode.");
+                                                              show(context, "Not supported in web app mode.\nOnly simulated data available.");
                                                               Navigator.pop(context);
+                                                              // push(context, flutter_bluetooth_serial_view(user: user, patient: document.id, reference: users.doc(document.id)));
                                                             } : () {
                                                               Navigator.pop(context);
                                                               // users.doc(document.id).update({'sensor_connected': true});
@@ -180,7 +175,7 @@ class _patients extends State<patients> {
                                                               Navigator.pop(context);
                                                             } : () {
                                                               Navigator.pop(context);
-                                                              push(context, ble(user: user));
+                                                              push(context, flutter_blue(user: user));
                                                               show(context, "Data parsing not yet supported.");
 
                                                             },
@@ -200,7 +195,9 @@ class _patients extends State<patients> {
                                     } else {
                                       print(user.userID);
                                       // push(context, Read(user: user));
-                                      push(context, data(user: user, patient: document.id, reference: users.doc(document.id), sensor: document["sensor_chosen"]));
+                                      push(context, ChartScreen(user: user, patient: document.id, reference: users.doc(document.id), sensor: document["sensor_chosen"], document_name: "NONE", connection: null));
+
+                                      // push(context, data(user: user, patient: document.id, reference: users.doc(document.id), sensor: document["sensor_chosen"]));
                                     }
                                   },
                                 style: ButtonStyle(
@@ -223,7 +220,7 @@ class _patients extends State<patients> {
                                   onPressed: (){
                                     print(user.userID);
                                     // push(context, Read(user: user));
-                                    push(context, history(user: user, patient: document.id, reference: users.doc(document.id)));
+                                    push(context, HistoryScreen(user: user, patient: document.id, reference: users.doc(document.id)));
                                   }//
                               ),
                             ),

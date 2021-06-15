@@ -3,38 +3,35 @@ import 'package:flutter/material.dart';
 import 'package:my_app/UI/MyDrawer.dart';
 import 'Tools/User.dart';
 import 'Tools/helper.dart';
-import './history_data.dart';
 import 'UI/MyAppBar.dart';
 import 'UI/MyDrawer.dart';
-import './read.dart';
-import './Testing.dart';
-import './data.dart';
+import './ChartScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 
 
-class history extends StatefulWidget {
+class HistoryScreen extends StatefulWidget {
   final User user;
   final String patient;
   final DocumentReference reference;
 
 
-  history({@required this.user, @required this.patient, @required this.reference});
+  HistoryScreen({@required this.user, @required this.patient, @required this.reference});
 
   @override
   State createState() {
-    return _history(user, patient, reference);
+    return _HistoryScreen(user, patient, reference);
   }
 }
 
-class _history extends State<history> {
+class _HistoryScreen extends State<HistoryScreen> {
   final User user;
   final String patient;
   final DocumentReference reference;
 
 
-  _history(this.user, this.patient, this.reference);
+  _HistoryScreen(this.user, this.patient, this.reference);
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +58,7 @@ class _history extends State<history> {
                         onPressed: (){
                           print(user.userID);
                           // push(context, Read(user: user));
-                          push(context, history_data(user: user, patient: patient, reference: reference.collection("recordings").doc(document.id), name: document.id, sensor: document['sensor']));
+                          push(context, ChartScreen(user: user, patient: patient, reference: reference.collection("recordings").doc(document.id), sensor: document['sensor'], document_name: document.id, connection: null ));
                         }//
                     ),
                   ),

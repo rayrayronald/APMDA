@@ -35,7 +35,8 @@ dependencies:
 #  firebase: "^8.0.0"
   charts_flutter: ^0.9.0
   adobe_xd: ^1.0.0
-  flutter_launcher_icons: "^0.7.3"
+#  flutter_launcher_icons: "^0.7.3"
+  # disabled for DCDG
   progress_dialog: ^1.2.4
   page_view_indicators: 1.3.1
   vector_math: ^2.0.8
@@ -45,6 +46,7 @@ dependencies:
 #  flutter_reactive_ble: ^2.7.3
   flutter_bluetooth_serial: ^0.2.2
   js: ^0.6.2
+  dcdg: ^2.0.1
 
 
 
@@ -58,7 +60,8 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: any
-  build_web_compilers: '>=1.0.0 <2.0.0'
+#  build_web_compilers: '>=1.0.0 <2.0.0' DISABLED FOR DCDG
+  build_web_compilers: ^2.10.0
   pedantic: ^1.0.0
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

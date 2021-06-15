@@ -4,43 +4,44 @@ import 'package:my_app/UI/MyDrawer.dart';
 import 'Tools/User.dart';
 import 'Tools/helper.dart';
 import 'UI/MyAppBar.dart';
-import 'UI/MyDrawer.dart';
-import './read.dart';
-import './Testing.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'dart:math' as math;
-import 'Tools/User.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'dart:math' as math;
+import 'dart:typed_data';
 
 
 
-class data extends StatefulWidget {
+class ChartScreen extends StatefulWidget {
   final User user;
   final String patient;
   final DocumentReference reference;
   final String sensor;
+  final String document_name;
+  final BluetoothConnection connection;
 
-
-  data({@required this.user, @required this.patient, @required this.reference, @required this.sensor});
+  ChartScreen({@required this.user, @required this.patient, @required this.reference, @required this.sensor, @required this.document_name, this.connection});
 
   @override
   State createState() {
-    return _data(user, patient, reference, sensor);
+    return _ChartScreen(user, patient, reference, sensor, document_name, connection);
   }
 }
 
-class _data extends State<data> {
+class _ChartScreen extends State<ChartScreen> {
   final User user;
   final String patient;
   final DocumentReference reference;
   final String sensor;
+  final String document_name;
+  final BluetoothConnection connection;
 
-
-  _data(this.user, this.patient, this.reference, this. sensor);
+  _ChartScreen(this.user, this.patient, this.reference, this.sensor, this.document_name, this.connection);
 
   DateTime selected_DT;
   double seleted_measurement;
@@ -66,19 +67,58 @@ class _data extends State<data> {
   DateTimeAxis xAxis;
   MarkerSettings markerSettings;
   ChartSeriesController _chartSeriesController;
-  final List<_MeasuredData> dataPoints = [_MeasuredData(DateTime.now(),
-   30 + 10 * math.sin(DateTime.now().second * 24 * (math.pi / 180.0)), "")];
+  // final List<_MeasuredData> dataPoints = [_MeasuredData(DateTime.now(), 30 + 10 * math.sin(DateTime.now().second * 24 * (math.pi / 180.0)), "")];
+  final List<_MeasuredData> dataPoints = [];
+  StreamSubscription<QuerySnapshot> streamSubscription;
 
+  bool live_data_mode = false;
+
+  int bytePackage = 0;
+  Uint8List byteBuffer = Uint8List(4);
+
+  // Set default `_initialized` and `_error` state to false
+  bool _error = false;
+  bool _initialized = false;
 
   @override void initState() {
-    Timer.periodic(
-        const Duration(milliseconds: 10), _updateData);
+    Uint8List temp;
+    if (document_name == "NONE") {
+      live_data_mode = true;
+    }
+
+    if (connection != null) {
+      print("Listening to byte stream");
+      connection.input.listen((Uint8List bytesinput) {
+        processByte(bytesinput);
+      });
+    } else if (sensor == "Chrome Web Serial API"){
+      print("Chrome serial API");
+      Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+        Uint8List new_data = getFromJS("value");
+        if ( new_data != temp ) {
+          temp = new_data;
+          processByte(new_data);
+        }
+        return;
+      });
+
+    } else if (live_data_mode) {
+      print("Live data mode");
+      Timer.periodic(
+          const Duration(milliseconds: 1000), _updateData);
+    } else {
+      print("Loading data history");
+      loadData();
+    }
     super.initState();
+
   }
 
   @override
   void dispose() {
     left = true;
+    streamSubscription.cancel();
+
     super.dispose();
   }
 
@@ -114,8 +154,31 @@ class _data extends State<data> {
       isVisible: false
     );
 
+    if (_error) {
+      return MaterialApp(
+          home: Scaffold(
+            body: Container(
+              color: Colors.white,
+              child: Center(
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 25,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Failed to load history!',
+                        style: TextStyle(color: Colors.red, fontSize: 25),
+                      ),
+                    ],
+                  )),
+            ),
+          ));
+    } else
     // Show a loader until FlutterFire is initialized
-    if (dataPoints.length<2) {
+    if (dataPoints.length<2 || !live_data_mode&& !_initialized) {
       return Container(
         color: Colors.white,
         child: Center(
@@ -126,7 +189,7 @@ class _data extends State<data> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text(sensor + " Live data"),
+          title: Text(sensor + (live_data_mode ? " Live data" : " Recording history")),
         ),
         body: SingleChildScrollView(
         child: Column(children: [
@@ -141,7 +204,7 @@ class _data extends State<data> {
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 //Initialize the spark charts widget
-                child: ElevatedButton(
+                child: live_data_mode? ElevatedButton(
                   child: Text(record_button),
                   onPressed: () {
                     _newRecording();
@@ -157,7 +220,55 @@ class _data extends State<data> {
                       },
                     ),
                   ),
-                ),
+                ) :
+                ElevatedButton(
+                  child: Text('Delete recording'),
+                  onPressed: () {
+                    return (
+                        showDialog(
+                            context: context,
+                            builder: (ctx) =>
+                                AlertDialog(
+                                  title: Text("Confirm deleting history " +
+                                      document_name.toString()),
+                                  content: Text(
+                                      "This action cannot be recovered."),
+                                  actions: [
+                                    FlatButton(
+                                      child: Text("Yes"),
+                                      onPressed: () {
+
+                                        reference.collection("time_series").get().then((snapshot) {
+                                          for (DocumentSnapshot ds in snapshot.docs){
+                                            ds.reference.delete();
+                                          }
+                                        });
+                                        reference.delete();
+                                        int count = 0;
+                                        Navigator.popUntil(context, (route) {
+                                          return count++ == 2;
+                                        });
+                                      },
+                                    ),
+                                    FlatButton(
+                                      child: Text("No"),
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                    )
+                                  ],
+                                ))
+                    );
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                          (Set<MaterialState> states) {
+                        return Colors.red;
+                      },
+                    ),
+                  ),
+                )
+                ,
               ),
             ],
           ),
@@ -177,7 +288,8 @@ class _data extends State<data> {
               selectionType: SelectionType.point,
 
               onSelectionChanged: (SelectionArgs args) {
-                print(args.pointIndex);
+                print("Selected Index: ");
+                print(args.pointIndex ?? "");
                 setState(() {
                   selected_DT = dataPoints[args.pointIndex].time;
                   seleted_measurement = dataPoints[args.pointIndex].measurement;
@@ -195,6 +307,8 @@ class _data extends State<data> {
                   dataSource: dataPoints,
                   xValueMapper: (_MeasuredData datapoint, _) => datapoint.time,
                   yValueMapper: (_MeasuredData datapoint, _) => datapoint.measurement,
+              // Duration of series animation, disable the animation by setting this property to 0.
+              animationDuration: 0,
                   // Map the data label text for each point from the data source
                   dataLabelMapper: (_MeasuredData datapoint, _) => datapoint.info,
                   dataLabelSettings: DataLabelSettings(
@@ -213,6 +327,9 @@ class _data extends State<data> {
                 child: ElevatedButton(
                   child: Text('View all'),
                   onPressed: () {
+                    setState(() {
+                      auto_scroll = false;
+                    });
                     zooming.reset();
                   },
                 ),
@@ -223,6 +340,7 @@ class _data extends State<data> {
                 child: ElevatedButton(
                   child: Text('Scroll to end'),
                   onPressed: () {
+                    scroll_to_end();
                     if (auto_scroll){
                       setState(() {
                         auto_scroll = false;
@@ -418,7 +536,104 @@ class _data extends State<data> {
     );
   }
 
+  void loadData() async {
+    try {
+      await reference.collection("time_series").get().then((value) =>
+      {
+        value.docs.forEach((doc) {
+          if (doc.data()["annotation"] == null) {
+            dataPoints.add(_MeasuredData(doc.data()["DateTime_stamp"].toDate(),
+                doc.data()["measurement"], ""));
+            print("No annotation");
+          } else {
+            dataPoints.add(_MeasuredData(doc.data()["DateTime_stamp"].toDate(),
+                doc.data()["measurement"], doc.data()["annotation"]));
+            print("Annotation: " + doc.data()["annotation"].toString());
+          }
+        })
+      });
+    } catch (e) {
+      print("error catch");
+      print(e);
+      print("error!!!!");
+      // Set `_error` state to true if Firebase initialization fails
+      setState(() {
+        _error = true;
+      });
+    } finally {
+      setState(() {
+        _initialized = true;
+      });
+      print ("initialised");
+    }
 
+
+    Stream collectionStream = reference.collection("time_series").snapshots();
+    streamSubscription = collectionStream.listen((value) =>
+    {
+      dataPoints.add(_MeasuredData(value.docs.last.data()["DateTime_stamp"].toDate(),
+          value.docs.last.data()["measurement"], value.docs.last.data()["annotation"]?? "")),
+      print(value.docs.last.data()["DateTime_stamp"].toDate().toString() + ", " +
+          value.docs.last.data()["measurement"].toString() + ", " + value.docs.last.data()["annotation"].toString()?? ""),
+      _chartSeriesController.updateDataSource(
+        addedDataIndexes: <int>[dataPoints.length - 1],
+      )
+
+
+    });
+  }
+  void processByte(Uint8List input) async {
+    for (int i = 0; i < input.length; i++) {
+      byteBuffer[bytePackage] = input[i];
+      bytePackage++;
+
+      if (bytePackage == 4) {
+        // print(Endian.host == Endian.little);
+
+        ByteData byteData = ByteData.sublistView(byteBuffer);
+
+
+        int channel_1_raw = byteData.getUint16(0, Endian.big);
+        int channel_2_raw = byteData.getUint16(2, Endian.big);
+
+        if (channel_1_raw > 1023 || channel_2_raw > 1023) {
+          byteBuffer[0] = input[i];
+          bytePackage = 1;
+          continue;
+        } else {
+          bytePackage = 0;
+        }
+
+        double channel_1 = channel_1_raw/1024*10+30;
+        double channel_2 = channel_2_raw/1024*10+30;
+
+        print("Channel 1: " + channel_1.toString() + " Channel 2: " + channel_2.toString());
+        // Uint16List sixteenBitList = byteBuffer.buffer.asUint16List();
+        // print(sixteenBitList);
+
+
+        DateTime timestamp = new DateTime.now();
+        if (!left) {
+          setState(() {
+            reading = channel_1;
+          });
+        }
+        dataPoints.add(_MeasuredData(timestamp, channel_1, ""));
+        _chartSeriesController.updateDataSource(
+          addedDataIndexes: <int>[dataPoints.length - 1],
+        );
+        if (recording) {
+
+          reference.collection("recordings").doc(reading_ID).collection("time_series").doc(timestamp.toString()).set({
+            'DateTime_stamp': timestamp,
+            'measurement': channel_1,
+            'annotation': null
+          });
+        }
+
+      }
+    }
+  }
 
 
 
@@ -491,6 +706,7 @@ class _data extends State<data> {
   }
 
   void _updateData(Timer timer) {
+    print ("update data");
     if (left) {
       timer.cancel();
       return;
@@ -505,6 +721,9 @@ class _data extends State<data> {
       addedDataIndexes: <int>[dataPoints.length - 1],
     );
     print("Number of data points: " + dataPoints.length.toString());
+    // if (dataPoints.length > 100) {
+    //   dataPoints.removeAt(0);
+    // }
     if (auto_scroll){
       scroll_to_end();
     }
@@ -525,116 +744,3 @@ class _MeasuredData {
   final double measurement;
   String info;
 }
-
-
-//
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     return Material(
-//       child: Scaffold (
-//         appBar: MyAppBar(title: Text("Patient " + patient), user: user),
-//         drawer: MyDrawer(),
-//         body: Column(
-//           children: [
-//             Padding(
-//               padding: const EdgeInsets.all(20.0),
-//               child: ElevatedButton(
-//                   child: Text('Live data'),
-//                   onPressed: (){
-//                     print(user.userID);
-//                     // push(context, Read(user: user));
-//                     push(context, MyHomePage(user: user));
-//                   }//
-//               ),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.all(20.0),
-//               child: ElevatedButton(
-//                   child: Text('History'),
-//                   onPressed: (){
-//                     print(user.userID);
-//                     // push(context, Read(user: user));
-//                     push(context, MyHomePage(user: user));
-//                   }//
-//               ),
-//             ),
-//           ],
-//         )
-//
-//       )
-//     );
-//
-//
-//
-//
-//     // return Scaffold(
-//       // drawer: Drawer(
-//       //   child: ListView(
-//       //     padding: EdgeInsets.zero,
-//       //     children: <Widget>[
-//       //       DrawerHeader(
-//       //         child: Text(
-//       //           'Menu',
-//       //           style: TextStyle(color: Colors.white),
-//       //         ),
-//       //         decoration: BoxDecoration(
-//       //           color: Color(COLOR_PRIMARY),
-//       //         ),
-//       //       ),
-//       //       ListTile(
-//       //         title: Text(
-//       //           'Logout',
-//       //           style: TextStyle(color: Colors.black),
-//       //         ),
-//       //         leading: Transform.rotate(
-//       //             angle: pi/1,
-//       //             child: Icon(Icons.exit_to_app, color: Colors.black)),
-//       //         onTap: () async {
-//       //           // user.active = false;
-//       //           // user.lastOnlineTimestamp = Timestamp.now();
-//       //           await auth.FirebaseAuth.instance.signOut();
-//       //           MyAppState.currentUser = null;
-//       //           pushAndRemoveUntil(context, LoginScreen(), false);
-//       //         },
-//       //       ),
-//       //     ],
-//       //   ),
-//       // ),
-//
-//       // appBar: AppBar(
-//       //   title: Text(
-//       //     'Connected Patients',
-//       //     style: TextStyle(color: Colors.black),
-//       //   ),
-//       //   iconTheme: IconThemeData(color: Colors.black),
-//       //   backgroundColor: Colors.white,
-//       //   centerTitle: true,
-//       // ),
-//
-//       // body: Center(
-//       //   child: Column(
-//       //     mainAxisAlignment: MainAxisAlignment.center,
-//       //     mainAxisSize: MainAxisSize.max,
-//       //     crossAxisAlignment: CrossAxisAlignment.center,
-//       //     children: <Widget>[
-//       //       // displayCircleImage(user.profilePictureURL, 125, false),
-//       //       // Padding(
-//       //       //   padding: const EdgeInsets.all(8.0),
-//       //       //   child: Text(user.firstName),
-//       //       // ),
-//       //       Padding(
-//       //         padding: const EdgeInsets.all(8.0),
-//       //         child: Text(user.email),
-//       //       ),
-//       //
-//       //       // Padding(
-//       //       //   padding: const EdgeInsets.all(8.0),
-//       //       //   child: Text(user.userID),
-//       //       // ),
-//       //     ],
-//       //   ),
-//       // ),
-//     // );
-//   }
-// }

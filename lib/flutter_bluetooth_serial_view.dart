@@ -6,20 +6,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:my_app/UI/MyDrawer.dart';
 import 'package:my_app/Tools/helper.dart';
-import 'package:my_app/flutter_reactive_ble.dart';
-import 'package:my_app/serial_data.dart';
 import 'Tools/User.dart';
 import 'Tools/helper.dart';
 import 'UI/MyAppBar.dart';
 import 'UI/MyDrawer.dart';
-import './read.dart';
-import './Testing.dart';
-import './data.dart';
-import './history.dart';
+import './ChartScreen.dart';
+import './HistoryScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:convert';
-import 'package:my_app/bundler/stub_js.dart' if (dart.library.js) 'dart:js' as js;
+import 'package:my_app/Tools/stub_js.dart' if (dart.library.js) 'dart:js' as js;
 // import 'dart:js' as js;
 
 
@@ -311,9 +307,7 @@ class _flutter_bluetooth_serial_view extends State<flutter_bluetooth_serial_view
                       RaisedButton(
                         child: Text("See graph"),
                         onPressed: () {
-                          print (_device.toString());
-                          print (_device.type);
-                          if (_device.address == null) {
+                          if (_device == null) {
                             // push(context, data(user: user, patient: patient, reference: reference, sensor: _device.name));
                             show(context, "Choose a connected bluetooth serial device.");
 
@@ -321,7 +315,7 @@ class _flutter_bluetooth_serial_view extends State<flutter_bluetooth_serial_view
                           //   push(context, serial_data(user: user, patient: patient, reference: reference, sensor: _device.name, connection: null));
 
                           } else {
-                            push(context, serial_data(user: user, patient: patient, reference: reference, sensor: _device.name, connection: connection));
+                            push(context, ChartScreen(user: user, patient: patient, reference: reference, sensor: _device.name, document_name: "NONE", connection: connection));
                           }
                         },
                       ),

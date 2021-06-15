@@ -5,35 +5,33 @@ import 'Tools/User.dart';
 import 'Tools/helper.dart';
 import 'UI/MyAppBar.dart';
 import 'UI/MyDrawer.dart';
-import './read.dart';
-import './Testing.dart';
-import './data.dart';
-import './history.dart';
+import './ChartScreen.dart';
+import './HistoryScreen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'dart:convert';
 
-class ble extends StatefulWidget {
+class flutter_blue extends StatefulWidget {
   final User user;
   final FlutterBlue flutterBlue = FlutterBlue.instance;
   final List<BluetoothDevice> devicesList = new List<BluetoothDevice>();
 
-  ble({@required this.user});
+  flutter_blue({@required this.user});
 
   @override
   State createState() {
-    return _ble(user);
+    return _flutter_blue(user);
   }
 }
 
-class _ble extends State<ble> {
+class _flutter_blue extends State<flutter_blue> {
   final User user;
   final _writeController = TextEditingController();
   BluetoothDevice _connectedDevice;
   List<BluetoothService> _services;
   final Map<Guid, List<int>> readValues = new Map<Guid, List<int>>();
 
-  _ble(this.user);
+  _flutter_blue(this.user);
 
   @override
   void initState() {
