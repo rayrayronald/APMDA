@@ -5,7 +5,7 @@
 - Flutter SDK
 - Android Virtual Device & xcode with iphone simulator
 - Firebase SDK
-- JDK (JDK 10 not supportted at the moment of writing)
+- JDK (JDK 16 not supportted at the moment of writing)
 
 ## Dart files
 
@@ -36,6 +36,8 @@
 
 #####  flutter_bluetooth_serial
 - Not supportted on iOS devices
+- modify processByte() to change data processing
+- Be aware of Big Endian & Small Endian!!
 
 #####  flutter_blue
 - Custom Data parsing needs to be updated
