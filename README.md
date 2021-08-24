@@ -47,6 +47,7 @@
 
 ### ChartScreen.dart
 - Displays pseudo / sensor data in the form of a interactive chart
+- Chooses data processing type based on document_name, connection and sensor arguments passed on from previous screen
 
 
 
