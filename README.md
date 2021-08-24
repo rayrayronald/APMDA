@@ -1,31 +1,52 @@
 # Universal Wireless Sensor Monitoring Application
 
 ## Recommended Installations and Tools
-Android Studio with Dart & Flutter PLugins
-Flutter SDK
-Android Virtual Device & xcode with iphone simulator
-Firebase SDK
+- Android Studio with Dart & Flutter PLugins
+- Flutter SDK
+- Android Virtual Device & xcode with iphone simulator
+- Firebase SDK
+- JDK (JDK 10 not supportted at the moment of writing)
 
-main.dart
-Initalisation of the application
-Firebase.initializeApp() initiates connection with the set Firebase account
-Android and iOS login credentials are downlaoded from Firebase Console
-Web login credentials are in web/index.html
+## Dart files
 
-LoginScreen.dart
-Verifies log in credentials with data on corresponding Firebase Users records
-Currently configured to automatically enter credentials as set in CONSTANTS.dart
+### main.dart
+- Initalisation of the application
+- Firebase.initializeApp() initiates connection with the set Firebase account
+- Android and iOS login credentials are downlaoded from Firebase Console
+- Web login credentials are in web/index.html
 
-PatientScreen.dart
-Retrieves list of patients from Firebase and their sensor connection status
-Connection status is manually hard coded currently
+### LoginScreen.dart
+- Verifies log in credentials with data on corresponding Firebase Users records
+- Currently configured to automatically enter credentials as set in CONSTANTS.dart
 
-HistoryScreen.dart
-Retrieves list of recording data from Firebase
-Selected data could be a continously updated stream
+### PatientScreen.dart
+- Retrieves list of patients from Firebase and their sensor connection status
+- Connection status is manually hard coded currently
+- Consists of simulator sensors that generator sine wave with noise
+#### Sensors
+#####  Chrome Web Bluetooth API
+- Only work in Chrome browser with experimental features enabled
+- Javascript written in /web/app.js
+- Custom Data parsing needs to be updated
 
-ChartScreen.dart
-Displays pseudo / sensor data in the form of a interactive chart
+#####  Chrome Web Serial API
+- Only work in Desktop Chrome browser with experimental features enabled
+- Javascript written in /web/app.js
+- Custom Data parsing needs to be updated
+
+#####  flutter_bluetooth_serial
+- Not supportted on iOS devices
+
+#####  flutter_blue
+- Custom Data parsing needs to be updated
+
+
+### HistoryScreen.dart
+- Retrieves list of recording data from Firebase
+- Selected data could be a continously updated stream
+
+### ChartScreen.dart
+- Displays pseudo / sensor data in the form of a interactive chart
 
 
 
